@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block titulo %}Mi lista{% endblock %}
+{% block contenido %}
+<h1>Mi lista</h1>
+<p class="sub">El estado se calcula solo con los episodios vistos (RN-002). Cada serie aparece una vez por perfil (RN-004).</p>
+
+<div class="perfiles">
+  {% for p in perfiles %}
+    <a href="{{ url_for('anime.inicio', perfil=p.id) }}" class="{{ 'activo' if perfil and p.id == perfil.id }}">{{ p.nombre }}</a>
+  {% endfor %}
+  <form method="post" action="{{ url_for('anime.crear_perfil') }}">
+    <input name="nombre" placeholder="Nuevo perfil" aria-label="Nombre del nuevo perfil" required>
+    <button class="chico" type="submit">Crear</button>
+  </form>
+</div>
+
+{% if perfil %}
+<div class="cifras">
+  <div class="cifra"><b>{{ resumen.series }}</b><span>Series en la lista</span></div>
+  <div class="cifra"><b>{{ resumen.completadas }}</b><span>Completadas</span></div>
+  <div class="cifra"><b>{{ resumen.viendo }}</b><span>Viendo</span></div>
+  <div class="cifra"><b>{{ resumen.episodios }}</b><span>Episodios vistos</span></div>
+  <div class="cifra"><b>{{ resumen.promedio or '—' }}</b><span>Calificación promedio</span></div>
+</div>
+
+<section class="tarjeta tabla-scroll">
+  <table>
+    <thead><tr><th>Serie</th><th>Avance</th><th>Estado</th><th class="num">Calif.</th><th></th></tr></thead>
+    <tbody>
+    {% for s in lista %}
+      {% set pct = (100 * s.vistos / s.episodios) | round | int %}
+      <tr>
+        <td>
+          <strong>{{ s.titulo }}</strong> <span class="etiqueta">T{{ s.temporada }}</span>
+          {% if s.resena %}<div class="resena">“{{ s.resena }}”</div>{% endif %}
+        </td>
+        <td style="min-width:150px">
+          <div class="barra-avance {{ 'completa' if s.estado == 'Completada' }}"><i style="width: {{ pct }}%"></i></div>
+          <small class="nota">{{ s.vistos }} / {{ s.episodios }} episodios</small>
+        </td>
+        <td><span class="estado {{ s.estado }}">{{ s.estado }}</span></td>
+        <td class="num">{% if s.calificacion %}<span class="estrellas">{{ s.calificacion }}/10</span>{% else %}—{% endif %}</td>
+        <td>
+          <div class="acciones">
+            {% if s.estado != 'Completada' %}
+            <form method="post" action="{{ url_for('anime.mas1', sid=s.id) }}"><button class="chico" type="submit">+1 episodio</button></form>
+            {% endif %}
+            <a class="boton secundario chico" href="{{ url_for('anime.avance', sid=s.id) }}">Editar</a>
+            <form method="post" action="{{ url_for('anime.quitar', sid=s.id) }}"><button class="peligro" type="submit">Quitar</button></form>
+          </div>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5" class="vacio">Tu lista está vacía. Agrega una serie del catálogo.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="tarjeta">
+  <h2>Agregar a mi lista</h2>
+  {% if disponibles %}
+  <form method="post" action="{{ url_for('anime.agregar') }}" class="fila">
+    <input type="hidden" name="perfil_id" value="{{ perfil.id }}">
+    <div>
+      <label for="serie_id">Serie</label>
+      <select id="serie_id" name="serie_id" required>
+        {% for se in disponibles %}<option value="{{ se.id }}">{{ se.titulo }} · T{{ se.temporada }} ({{ se.episodios }} ep.)</option>{% endfor %}
+      </select>
+    </div>
+    <div><button type="submit">Agregar</button></div>
+  </form>
+  {% else %}
+    <p class="nota">Ya tienes todas las series del catálogo. Puedes registrar más en <a href="{{ url_for('anime.series') }}">Catálogo</a>.</p>
+  {% endif %}
+</section>
+{% else %}
+  <section class="tarjeta vacio">Crea un perfil para empezar tu lista.</section>
+{% endif %}
+{% endblock %}

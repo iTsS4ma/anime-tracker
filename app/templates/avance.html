@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}Avance · {{ s.titulo }}{% endblock %}
+{% block contenido %}
+<h1>{{ s.titulo }} · T{{ s.temporada }}</h1>
+<p class="sub">Perfil {{ s.perfil }} · {{ s.episodios }} episodios · estado actual: <span class="estado {{ s.estado }}">{{ s.estado }}</span></p>
+
+<section class="tarjeta">
+  <form method="post">
+    <div class="fila" style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+      <div>
+        <label for="vistos">Episodios vistos (0 a {{ s.episodios }})</label>
+        <input id="vistos" name="vistos" type="number" value="{{ form.vistos }}" required>
+      </div>
+      <div>
+        <label for="calificacion">Calificación (1 a 10, opcional)</label>
+        <input id="calificacion" name="calificacion" type="number" value="{{ form.calificacion if form.calificacion is not none }}">
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <label for="resena">Reseña (solo al terminar la serie)</label>
+      <textarea id="resena" name="resena">{{ form.resena or '' }}</textarea>
+    </div>
+    <p class="nota">RN-001: los episodios vistos van de 0 al total. RN-003: para calificar hay que ver al menos un episodio y la reseña se escribe al completar la serie.</p>
+    <div class="acciones" style="justify-content:flex-start;margin-top:12px">
+      <button type="submit">Guardar avance</button>
+      <a class="boton secundario" href="{{ url_for('anime.inicio', perfil=s.perfil_id) }}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

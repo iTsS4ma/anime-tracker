@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block titulo %}Editar serie{% endblock %}
+{% block contenido %}
+<h1>Editar serie</h1>
+<p class="sub">{{ se.titulo }} · T{{ se.temporada }}. El total de episodios no puede quedar por debajo de lo que alguien ya vio (RN-007).</p>
+<section class="tarjeta">
+  {% set campos = form %}
+  {% set boton = 'Guardar' %}
+  {% set cancelar = url_for('anime.serie', serie_id=se.id) %}
+  {% include "_serie_campos.html" %}
+</section>
+{% endblock %}

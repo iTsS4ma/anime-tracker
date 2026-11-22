@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titulo %}{{ se.titulo }}{% endblock %}
+{% block contenido %}
+<h1>{{ se.titulo }} <span class="etiqueta">T{{ se.temporada }}</span></h1>
+<p class="sub">{{ se.estudio }} · {{ se.anio }} · {{ se.episodios }} episodios</p>
+
+<div class="acciones" style="justify-content:flex-start;margin-bottom:18px">
+  <a class="boton secundario" href="{{ url_for('anime.editar_serie', serie_id=se.id) }}">Editar serie</a>
+  <form method="post" action="{{ url_for('anime.eliminar_serie', serie_id=se.id) }}"><button class="peligro" type="submit" style="padding:9px 16px;font-size:inherit">Eliminar serie</button></form>
+</div>
+
+<div class="rejilla">
+  <section class="tarjeta">
+    <h2>Personajes</h2>
+    <table>
+      <tbody>
+      {% for p in personajes %}
+        <tr>
+          <td><strong>{{ p.nombre }}</strong></td>
+          <td><span class="etiqueta">{{ p.rol }}</span></td>
+          <td><div class="acciones"><form method="post" action="{{ url_for('anime.eliminar_personaje', pid=p.id) }}"><button class="peligro" type="submit">Eliminar</button></form></div></td>
+        </tr>
+      {% else %}
+        <tr><td class="vacio">Sin personajes registrados.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <form method="post" action="{{ url_for('anime.crear_personaje', serie_id=se.id) }}" class="fila" style="margin-top:14px">
+      <div><label for="nombre">Nombre</label><input id="nombre" name="nombre" required></div>
+      <div>
+        <label for="rol">Rol</label>
+        <select id="rol" name="rol">{% for r in roles %}<option>{{ r }}</option>{% endfor %}</select>
+      </div>
+      <div><button type="submit">Agregar</button></div>
+    </form>
+    <p class="nota">Un nombre no se repite dentro de la misma serie (RN-005).</p>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Quién la sigue</h2>
+    <table>
+      <tbody>
+      {% for s in seguidores %}
+        <tr>
+          <td>{{ s.nombre }}</td>
+          <td class="num">{{ s.vistos }} / {{ se.episodios }}</td>
+          <td><span class="estado {{ s.estado }}">{{ s.estado }}</span></td>
+          <td class="num">{{ '%d/10' % s.calificacion if s.calificacion else '—' }}</td>
+        </tr>
+      {% else %}
+        <tr><td class="vacio">Nadie la tiene en su lista.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</div>
+{% endblock %}

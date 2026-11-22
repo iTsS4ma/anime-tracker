@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Mi lista{% endblock %} · Anime Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+  <header class="barra">
+    <div class="contenido">
+      <a class="marca" href="{{ url_for('anime.inicio') }}">ANIME<span>TRACKER</span></a>
+      <nav>
+        {% set ep = request.endpoint or '' %}
+        <a href="{{ url_for('anime.inicio') }}" class="{{ 'activo' if ep in ('anime.inicio', 'anime.avance') }}">Mi lista</a>
+        <a href="{{ url_for('anime.series') }}" class="{{ 'activo' if 'serie' in ep }}">Catálogo</a>
+      </nav>
+    </div>
+  </header>
+  <main class="contenido">
+    {% for categoria, mensaje in get_flashed_messages(with_categories=true) %}
+      <div class="aviso {{ categoria }}" role="alert">{{ mensaje }}</div>
+    {% endfor %}
+    {% block contenido %}{% endblock %}
+  </main>
+  <footer>Anime Tracker · Lista de seguimiento de anime · Proyecto escolar sin relación oficial con las series ni sus estudios</footer>
+</body>
+</html>

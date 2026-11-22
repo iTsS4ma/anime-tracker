@@ -1,14 +1,16 @@
 # Anime Tracker · Documentación
 
-**Versión 1.0** · Aplicación web en Python para llevar una lista de seguimiento de anime por perfil.
+**Versión 2.0** · Aplicación web en Python para llevar una lista de seguimiento de anime por perfil y por temporada.
 
 ## 1. Descripción
 
-Anime Tracker permite que cada perfil lleve su lista de series: cuántos episodios ha visto, en qué estado va cada una, su calificación y su reseña. También mantiene un catálogo de series y temporadas con sus personajes.
+Anime Tracker permite que cada perfil lleve su lista de temporadas: cuántos episodios ha visto, en qué estado va cada una, su calificación y su reseña. También mantiene un catálogo de series y temporadas con sus personajes.
 
 **Usuario:** cualquier persona que quiera llevar el registro de lo que ve. Cada perfil tiene su propia lista. No hay inicio de sesión: los perfiles se eligen desde la pantalla principal.
 
-**Alcance:** series de anime por temporada. Fuera de alcance: películas, imágenes de las series, recomendaciones automáticas y cuentas con contraseña.
+**Datos:** la aplicación trae el catálogo real al 21 de noviembre de 2026 de Death Note, Attack on Titan, Jujutsu Kaisen y Chainsaw Man (12 temporadas emitidas en TV), tomado de AniList.
+
+**Fuera de alcance:** películas, imágenes de las series, recomendaciones automáticas y cuentas con contraseña.
 
 ## 2. Tecnología
 
@@ -25,44 +27,44 @@ Anime Tracker permite que cada perfil lleve su lista de series: cuántos episodi
 
 | Clave | Requerimiento |
 |---|---|
-| RF-01 | Registrar, consultar, editar y eliminar series y temporadas (título, temporada, estudio, año y episodios). |
-| RF-02 | Registrar, consultar y eliminar personajes de una serie (nombre y rol). |
+| RF-01 | Registrar, consultar, editar y eliminar temporadas del catálogo (serie, temporada, estudio, año de estreno y episodios). |
+| RF-02 | Registrar, consultar y eliminar personajes (nombre y rol). |
 | RF-03 | Crear perfiles y cambiar entre ellos. |
-| RF-04 | Agregar series a la lista de un perfil y quitarlas. |
-| RF-05 | Registrar el avance de una serie: episodios vistos, calificación y reseña; botón para sumar un episodio. |
-| RF-06 | Calcular el estado de cada serie de la lista y un resumen del perfil. |
-| RF-07 | Avisar en pantalla, con la clave de la regla, cuando una operación incumple una regla de negocio. |
+| RF-04 | Agregar temporadas a la lista de un perfil y quitarlas. |
+| RF-05 | Registrar el avance: episodios vistos, calificación y reseña; botón para sumar un episodio. |
+| RF-06 | Calcular el estado de cada temporada de la lista y un resumen del perfil. |
+| RF-07 | Avisar en pantalla cuando una operación no cumple una regla de negocio, sin guardar nada. |
 
 ## 4. Historias de usuario
 
 | Clave | Historia |
 |---|---|
 | HU-01 | Como administrador del catálogo, quiero registrar series y temporadas con su número de episodios. |
-| HU-02 | Como usuario, quiero agregar series a mi lista para llevar lo que estoy viendo. |
+| HU-02 | Como usuario, quiero agregar temporadas a mi lista para llevar lo que estoy viendo. |
 | HU-03 | Como usuario, quiero marcar los episodios que veo para saber en qué voy. |
-| HU-04 | Como usuario, quiero calificar y reseñar las series para recordar qué me parecieron. |
+| HU-04 | Como usuario, quiero calificar y reseñar lo que veo para recordar qué me pareció. |
 | HU-05 | Como administrador del catálogo, quiero registrar los personajes de cada serie. |
 
 ## 5. Reglas de negocio
 
-Programadas en `app/reglas.py`. Cada una tiene pruebas en `tests/test_reglas.py` con su clave en el nombre de la prueba (por ejemplo, `test_rn002_...`).
+Programadas en `app/reglas.py`. Cada una tiene pruebas en `tests/test_reglas.py` con su clave en el nombre de la prueba (por ejemplo, `test_rn004_...`).
 
 | Clave | Regla | Severidad | Historia | Criterio de aceptación |
 |---|---|---|---|---|
-| RN-001 | Los episodios vistos van de 0 al total de la temporada; el botón +1 no pasa del total. | Alta | HU-03 | Dada Chainsaw Man T1 con 12 episodios, cuando se capturan 13 vistos, entonces se rechaza con el aviso RN-001. |
-| RN-002 | El estado se calcula: Pendiente con 0 episodios, Viendo con al menos 1, Completada al llegar al total. No se captura a mano. | Media | HU-03 | Dada una serie de 12 episodios, cuando se marcan 12 vistos, entonces el estado es Completada. |
-| RN-003 | La calificación va de 1 a 10 y requiere haber visto al menos un episodio; la reseña solo se escribe con la serie completada. | Media | HU-04 | Dada una serie en Pendiente, cuando se califica con 8, entonces se rechaza con el aviso RN-003. |
-| RN-004 | Una serie aparece una sola vez en la lista de cada perfil; otro perfil sí puede agregarla. | Media | HU-02 | Dada Death Note en la lista del perfil Demo, cuando se agrega otra vez, entonces se rechaza con el aviso RN-004. |
-| RN-005 | El nombre de un personaje no se repite dentro de la misma serie (sin distinguir mayúsculas). | Baja | HU-05 | Dado Denji en Chainsaw Man, cuando se registra «denji» en la misma serie, entonces se rechaza con el aviso RN-005. |
-| RN-006 | Una serie que está en la lista de algún perfil no se elimina del catálogo. | Alta | HU-01 | Dada Death Note en una lista, cuando se intenta eliminar, entonces se rechaza con el aviso RN-006. |
-| RN-007 | El total de episodios de una serie no baja de lo visto por cualquier perfil; al cambiarlo se recalcula el estado de todos. | Media | HU-01 | Dados 10 episodios vistos, cuando el total se cambia a 9, entonces se rechaza con el aviso RN-007. |
+| RN-001 | Los episodios vistos van de 0 al total de la temporada; el botón +1 no pasa del total. | Alta | HU-03 | Dada Chainsaw Man temporada 1 con 12 episodios, cuando se capturan 13 vistos, entonces se rechaza. |
+| RN-002 | El estado se calcula: Pendiente con 0 episodios, Viendo con al menos 1, Completada al llegar al total. No se captura a mano. | Media | HU-03 | Dada una temporada de 12 episodios, cuando se marcan 12 vistos, entonces el estado es Completada. |
+| RN-003 | La calificación va de 1 a 10 y requiere haber visto al menos un episodio; la reseña solo se escribe con la temporada completada. | Media | HU-04 | Dada una temporada en Pendiente, cuando se califica con 8, entonces se rechaza. |
+| RN-004 | Una temporada aparece una sola vez en la lista de cada perfil; otro perfil sí puede agregarla. | Media | HU-02 | Dada Death Note en la lista del perfil Demo, cuando se agrega otra vez, entonces se rechaza. |
+| RN-005 | El nombre de un personaje no se repite dentro de la misma temporada del catálogo (sin distinguir mayúsculas). | Baja | HU-05 | Dado Denji en Chainsaw Man, cuando se registra «denji» en la misma temporada, entonces se rechaza. |
+| RN-006 | Una temporada que está en la lista de algún perfil no se elimina del catálogo. | Alta | HU-01 | Dada Death Note en una lista, cuando se intenta eliminar, entonces se rechaza. |
+| RN-007 | El total de episodios de una temporada no baja de lo visto por cualquier perfil; al cambiarlo se recalcula el estado de todos. | Media | HU-01 | Dados 10 episodios vistos, cuando el total se cambia a 9, entonces se rechaza. |
 
 ## 6. Casos de uso
 
-### CU-01 Agregar una serie a mi lista
+### CU-01 Agregar una temporada a mi lista
 - **Actor:** usuario.
-- **Flujo principal:** 1) En *Mi lista* elige su perfil. 2) En *Agregar a mi lista* elige la serie. 3) Presiona *Agregar*. 4) El sistema valida RN-004, la agrega en estado Pendiente (RN-002) y muestra «Serie agregada a tu lista.».
-- **Flujo alterno:** si la serie ya está en su lista, no se agrega y se muestra el aviso RN-004.
+- **Flujo principal:** 1) En *Mi lista* elige su perfil. 2) En *Agregar a mi lista* elige la temporada. 3) Presiona *Agregar*. 4) El sistema valida RN-004, la agrega en estado Pendiente (RN-002) y muestra «Serie agregada a tu lista.».
+- **Flujo alterno:** si ya está en su lista, no se agrega y se muestra el aviso.
 
 ### CU-02 Registrar avance
 - **Actor:** usuario.
@@ -71,51 +73,56 @@ Programadas en `app/reglas.py`. Cada una tiene pruebas en `tests/test_reglas.py`
 
 ### CU-03 Administrar el catálogo
 - **Actor:** administrador del catálogo.
-- **Flujo principal:** 1) En *Catálogo* registra una serie o temporada. 2) Desde la serie edita sus datos, agrega personajes (RN-005) o la elimina (RN-006).
-- **Flujo alterno:** si el nuevo total de episodios es menor a lo que alguien ya vio, no se guarda y se muestra el aviso RN-007.
+- **Flujo principal:** 1) En *Catálogo* registra una temporada. 2) Desde la temporada edita sus datos, agrega personajes (RN-005) o la elimina (RN-006).
+- **Flujo alterno:** si el nuevo total de episodios es menor a lo que alguien ya vio, no se guarda y se muestra el aviso (RN-007).
 
 ## 7. Modelo de datos
 
 | Tabla | Campos | Restricciones |
 |---|---|---|
-| series | id, titulo, temporada, estudio, anio, episodios | (título, temporada) único; episodios > 0 |
-| personajes | id, serie_id, nombre, rol | se borran con su serie; nombre único por serie (RN-005) |
+| series | id, titulo, temporada, estudio, anio, episodios | (título, temporada) único; episodios > 0. Cada fila es una temporada o parte emitida |
+| personajes | id, serie_id, nombre, rol | se borran con su temporada; nombre único por temporada (RN-005) |
 | perfiles | id, nombre | nombre único |
-| seguimiento | id, perfil_id, serie_id, vistos, estado, calificacion, resena, actualizado | (perfil, serie) único (RN-004) |
+| seguimiento | id, perfil_id, serie_id, vistos, estado, calificacion, resena, actualizado | (perfil, temporada) único (RN-004) |
 
 ## 8. Arquitectura
 
 ```
 Navegador ──HTTP──▶ rutas.py (pantallas) ──▶ reglas.py (reglas de negocio) ──▶ SQLite
                          │                          │
-                    templates/ (HTML)        ReglaNegocioError("RN-###")
+                    templates/ (HTML)        ReglaNegocioError (aviso en pantalla)
 ```
 
-Toda escritura a la base de datos pasa por `reglas.py`. Si una operación incumple una regla, se lanza `ReglaNegocioError` con la clave de la regla y la pantalla la muestra como aviso, sin guardar nada.
+Toda escritura a la base de datos pasa por `reglas.py`, incluida la carga del catálogo. Si una operación no cumple una regla, se lanza `ReglaNegocioError` y la pantalla muestra el aviso sin guardar nada.
 
 ## 9. Pruebas
 
-32 pruebas automatizadas con pytest, todas en verde:
+34 pruebas automatizadas con pytest, todas en verde:
 
 - `tests/test_reglas.py`: al menos una prueba por regla RN-001 a RN-007.
-- `tests/test_web.py`: que cada pantalla cargue, que el CRUD funcione desde la web y que los avisos RN-001, RN-004 y RN-006 aparezcan.
+- `tests/test_web.py`: que cada pantalla cargue, que no muestre claves internas de reglas, que el catálogo traiga las temporadas reales, que el CRUD funcione desde la web y que los avisos aparezcan.
 
 Para correrlas: `pytest`. Solo las de reglas: `pytest -k rn -v`.
 
 ## 10. Despliegue
 
-El repositorio incluye `render.yaml` para desplegar en Render con el plan gratuito (New + → Blueprint). El paso a paso está en el `README.md`. En el plan gratuito la base de datos vuelve a los datos de ejemplo cada vez que el servicio se reinicia.
+El repositorio incluye `render.yaml` para desplegar en Render con el plan gratuito (New + → Blueprint). El paso a paso está en el `README.md`. En el plan gratuito la base de datos vuelve al catálogo original cada vez que el servicio se reinicia.
 
-## 11. Capturas
+## 11. Fuentes
+
+- Temporadas, estudios, fechas de estreno y número de episodios: AniList (`https://anilist.co`, API GraphQL `https://graphql.anilist.co`), consultada el 21 de noviembre de 2026.
+- El catálogo incluye solo temporadas emitidas en TV y los dos especiales de los capítulos finales de Attack on Titan; no incluye películas.
+
+## 12. Capturas
 
 ![Mi lista](capturas/01_mi_lista.png)
 *Lista del perfil Demo con su resumen, avance y estado calculado.*
 
-![Serie](capturas/03_serie_personajes.png)
-*Detalle de Chainsaw Man: personajes y quién la sigue.*
+![Catálogo](capturas/02_catalogo.png)
+*Catálogo con las temporadas emitidas al 21 de noviembre de 2026.*
 
-![RN-003](capturas/05_rn003_calificar_sin_ver.png)
-*RN-003: calificar una serie sin haber visto ningún episodio.*
+![Aviso de episodios](capturas/04_aviso_episodios.png)
+*Aviso al capturar más episodios vistos que los de la temporada.*
 
-![RN-006](capturas/06_rn006_serie_seguida.png)
-*RN-006: eliminar una serie que está en una lista.*
+![Aviso de calificación](capturas/05_aviso_calificacion.png)
+*Aviso al calificar una temporada sin haber visto ningún episodio.*

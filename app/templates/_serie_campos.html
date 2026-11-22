@@ -1,6 +1,6 @@
 <form method="post" class="fila">
   <div><label for="titulo">Título</label><input id="titulo" name="titulo" value="{{ campos.titulo }}" required></div>
-  <div><label for="temporada">Temporada</label><input id="temporada" name="temporada" type="number" min="1" value="{{ campos.temporada or 1 }}" required></div>
+  <div><label for="temporada">Temporada</label><input id="temporada" name="temporada" value="{{ campos.temporada }}" placeholder="Temporada 1" required></div>
   <div><label for="estudio">Estudio</label><input id="estudio" name="estudio" value="{{ campos.estudio }}" required></div>
   <div><label for="anio">Año</label><input id="anio" name="anio" type="number" value="{{ campos.anio }}" required></div>
   <div><label for="episodios">Episodios</label><input id="episodios" name="episodios" type="number" min="1" value="{{ campos.episodios }}" required></div>

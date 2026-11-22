@@ -14,7 +14,7 @@ class ReglaNegocioError(Exception):
     """Se lanza cuando una operación incumple una regla de negocio."""
 
     def __init__(self, regla: str, mensaje: str):
-        super().__init__(f"{regla}: {mensaje}")
+        super().__init__(mensaje)
         self.regla = regla
         self.mensaje = mensaje
 
@@ -49,10 +49,10 @@ def estado_de(vistos: int, episodios: int) -> str:
 
 # ---------------------------------------------------------------- Series
 def _datos_serie(titulo, temporada, estudio, anio, episodios):
-    titulo, estudio = _texto(titulo, "Título"), _texto(estudio, "Estudio")
-    temporada, anio, episodios = _entero(temporada, "Temporada"), _entero(anio, "Año"), _entero(episodios, "Episodios")
-    if temporada < 1 or episodios < 1:
-        raise DatoInvalido("La temporada y los episodios deben ser 1 o más.")
+    titulo, temporada, estudio = _texto(titulo, "Título"), _texto(temporada, "Temporada"), _texto(estudio, "Estudio")
+    anio, episodios = _entero(anio, "Año"), _entero(episodios, "Episodios")
+    if episodios < 1:
+        raise DatoInvalido("Los episodios deben ser 1 o más.")
     if not 1900 <= anio <= 2100:
         raise DatoInvalido("El año no es válido.")
     return titulo, temporada, estudio, anio, episodios
@@ -60,8 +60,8 @@ def _datos_serie(titulo, temporada, estudio, anio, episodios):
 
 def crear_serie(conn: sqlite3.Connection, titulo, temporada, estudio, anio, episodios) -> int:
     datos = _datos_serie(titulo, temporada, estudio, anio, episodios)
-    if conn.execute("SELECT 1 FROM series WHERE lower(titulo) = lower(?) AND temporada = ?", (datos[0], datos[1])).fetchone():
-        raise DatoInvalido(f"Ya existe «{datos[0]}» temporada {datos[1]}.")
+    if conn.execute("SELECT 1 FROM series WHERE lower(titulo) = lower(?) AND lower(temporada) = lower(?)", (datos[0], datos[1])).fetchone():
+        raise DatoInvalido(f"Ya existe «{datos[0]} · {datos[1]}».")
     cur = conn.execute("INSERT INTO series (titulo, temporada, estudio, anio, episodios) VALUES (?, ?, ?, ?, ?)", datos)
     conn.commit()
     return cur.lastrowid
@@ -70,10 +70,10 @@ def crear_serie(conn: sqlite3.Connection, titulo, temporada, estudio, anio, epis
 def editar_serie(conn: sqlite3.Connection, serie_id: int, titulo, temporada, estudio, anio, episodios) -> None:
     titulo, temporada, estudio, anio, episodios = _datos_serie(titulo, temporada, estudio, anio, episodios)
     otra = conn.execute(
-        "SELECT 1 FROM series WHERE lower(titulo) = lower(?) AND temporada = ? AND id <> ?", (titulo, temporada, serie_id)
+        "SELECT 1 FROM series WHERE lower(titulo) = lower(?) AND lower(temporada) = lower(?) AND id <> ?", (titulo, temporada, serie_id)
     ).fetchone()
     if otra:
-        raise DatoInvalido(f"Ya existe «{titulo}» temporada {temporada}.")
+        raise DatoInvalido(f"Ya existe «{titulo} · {temporada}».")
     # RN-007: el total de episodios no baja de lo que alguien ya vio.
     maximo = conn.execute("SELECT COALESCE(MAX(vistos), 0) FROM seguimiento WHERE serie_id = ?", (serie_id,)).fetchone()[0]
     if episodios < maximo:
@@ -134,7 +134,7 @@ def agregar_a_lista(conn: sqlite3.Connection, perfil_id, serie_id) -> int:
         raise DatoInvalido("El perfil o la serie no existen.")
     # RN-004: una serie aparece una sola vez en la lista de cada perfil.
     if conn.execute("SELECT 1 FROM seguimiento WHERE perfil_id = ? AND serie_id = ?", (perfil_id, serie_id)).fetchone():
-        raise ReglaNegocioError("RN-004", f"«{serie['titulo']}» T{serie['temporada']} ya está en tu lista.")
+        raise ReglaNegocioError("RN-004", f"«{serie['titulo']} · {serie['temporada']}» ya está en tu lista.")
     cur = conn.execute(
         "INSERT INTO seguimiento (perfil_id, serie_id, vistos, estado) VALUES (?, ?, 0, ?)",
         (perfil_id, serie_id, estado_de(0, serie["episodios"])),
@@ -195,7 +195,7 @@ def lista_de(conn: sqlite3.Connection, perfil_id: int) -> list[sqlite3.Row]:
         """SELECT s.*, se.titulo, se.temporada, se.episodios, se.estudio
            FROM seguimiento s JOIN series se ON se.id = s.serie_id
            WHERE s.perfil_id = ?
-           ORDER BY CASE s.estado WHEN 'Viendo' THEN 0 WHEN 'Pendiente' THEN 1 ELSE 2 END, se.titulo, se.temporada""",
+           ORDER BY CASE s.estado WHEN 'Viendo' THEN 0 WHEN 'Pendiente' THEN 1 ELSE 2 END, se.titulo, se.anio, se.id""",
         (perfil_id,),
     ).fetchall()
 

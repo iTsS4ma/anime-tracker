@@ -2,7 +2,7 @@
 {% block titulo %}Catálogo{% endblock %}
 {% block contenido %}
 <h1>Catálogo</h1>
-<p class="sub">Series y temporadas disponibles. Una serie que alguien sigue no se elimina (RN-006).</p>
+<p class="sub">Series y temporadas disponibles, con su número de episodios.</p>
 
 <section class="tarjeta">
   <h2>Nueva serie o temporada</h2>
@@ -12,12 +12,12 @@
 
 <section class="tarjeta tabla-scroll">
   <table>
-    <thead><tr><th>Serie</th><th>Temp.</th><th class="ocultar-movil">Estudio</th><th class="num">Año</th><th class="num">Episodios</th><th class="num">Siguen</th><th></th></tr></thead>
+    <thead><tr><th>Serie</th><th>Temporada</th><th class="ocultar-movil">Estudio</th><th class="num">Año</th><th class="num">Episodios</th><th class="num">Siguen</th><th></th></tr></thead>
     <tbody>
     {% for se in series %}
       <tr>
         <td><a href="{{ url_for('anime.serie', serie_id=se.id) }}"><strong>{{ se.titulo }}</strong></a></td>
-        <td>T{{ se.temporada }}</td>
+        <td>{{ se.temporada }}</td>
         <td class="ocultar-movil">{{ se.estudio }}</td>
         <td class="num">{{ se.anio }}</td>
         <td class="num">{{ se.episodios }}</td>

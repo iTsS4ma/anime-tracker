@@ -2,7 +2,7 @@
 {% block titulo %}Mi lista{% endblock %}
 {% block contenido %}
 <h1>Mi lista</h1>
-<p class="sub">El estado se calcula solo con los episodios vistos (RN-002). Cada serie aparece una vez por perfil (RN-004).</p>
+<p class="sub">Lleva lo que ves por temporada. El estado cambia solo según los episodios que marques.</p>
 
 <div class="perfiles">
   {% for p in perfiles %}
@@ -31,7 +31,7 @@
       {% set pct = (100 * s.vistos / s.episodios) | round | int %}
       <tr>
         <td>
-          <strong>{{ s.titulo }}</strong> <span class="etiqueta">T{{ s.temporada }}</span>
+          <strong>{{ s.titulo }}</strong> <span class="etiqueta">{{ s.temporada }}</span>
           {% if s.resena %}<div class="resena">“{{ s.resena }}”</div>{% endif %}
         </td>
         <td style="min-width:150px">
@@ -65,7 +65,7 @@
     <div>
       <label for="serie_id">Serie</label>
       <select id="serie_id" name="serie_id" required>
-        {% for se in disponibles %}<option value="{{ se.id }}">{{ se.titulo }} · T{{ se.temporada }} ({{ se.episodios }} ep.)</option>{% endfor %}
+        {% for se in disponibles %}<option value="{{ se.id }}">{{ se.titulo }} · {{ se.temporada }} ({{ se.episodios }} ep.)</option>{% endfor %}
       </select>
     </div>
     <div><button type="submit">Agregar</button></div>

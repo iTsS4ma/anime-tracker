@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block titulo %}{{ se.titulo }}{% endblock %}
 {% block contenido %}
-<h1>{{ se.titulo }} <span class="etiqueta">T{{ se.temporada }}</span></h1>
+<h1>{{ se.titulo }} <span class="etiqueta">{{ se.temporada }}</span></h1>
 <p class="sub">{{ se.estudio }} · {{ se.anio }} · {{ se.episodios }} episodios</p>
 
 <div class="acciones" style="justify-content:flex-start;margin-bottom:18px">
@@ -33,7 +33,6 @@
       </div>
       <div><button type="submit">Agregar</button></div>
     </form>
-    <p class="nota">Un nombre no se repite dentro de la misma serie (RN-005).</p>
   </section>
 
   <section class="tarjeta">

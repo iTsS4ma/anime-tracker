@@ -7,7 +7,7 @@ ESQUEMA = """
 CREATE TABLE IF NOT EXISTS series (
     id         INTEGER PRIMARY KEY,
     titulo     TEXT NOT NULL,
-    temporada  INTEGER NOT NULL DEFAULT 1,
+    temporada  TEXT NOT NULL,
     estudio    TEXT NOT NULL,
     anio       INTEGER NOT NULL,
     episodios  INTEGER NOT NULL CHECK (episodios > 0),
@@ -36,26 +36,36 @@ CREATE TABLE IF NOT EXISTS seguimiento (
 );
 """
 
-# Datos de ejemplo: series reales con su número de episodios por temporada.
-SERIES = [  # (título, temporada, estudio, año, episodios)
-    ("Death Note", 1, "Madhouse", 2006, 37),
-    ("Attack on Titan", 1, "Wit Studio", 2013, 25),
-    ("Jujutsu Kaisen", 1, "MAPPA", 2020, 24),
-    ("Jujutsu Kaisen", 2, "MAPPA", 2023, 23),
-    ("Chainsaw Man", 1, "MAPPA", 2022, 12),
+# Catálogo real al 21 de noviembre de 2026: temporadas emitidas en TV con su número de episodios.
+# Fuente: AniList (anilist.co), consultada el 21 de noviembre de 2026.
+SERIES = [  # (título, temporada, estudio, año de estreno, episodios)
+    ("Death Note", "Temporada única", "Madhouse", 2006, 37),
+    ("Attack on Titan", "Temporada 1", "Wit Studio", 2013, 25),
+    ("Attack on Titan", "Temporada 2", "Wit Studio", 2017, 12),
+    ("Attack on Titan", "Temporada 3 · Parte 1", "Wit Studio", 2018, 12),
+    ("Attack on Titan", "Temporada 3 · Parte 2", "Wit Studio", 2019, 10),
+    ("Attack on Titan", "Temporada final · Parte 1", "MAPPA", 2020, 16),
+    ("Attack on Titan", "Temporada final · Parte 2", "MAPPA", 2022, 12),
+    ("Attack on Titan", "Temporada final · Capítulos finales (especiales)", "MAPPA", 2023, 2),
+    ("Jujutsu Kaisen", "Temporada 1", "MAPPA", 2020, 24),
+    ("Jujutsu Kaisen", "Temporada 2", "MAPPA", 2023, 23),
+    ("Jujutsu Kaisen", "Temporada 3 · The Culling Game, parte 1", "MAPPA", 2026, 12),
+    ("Chainsaw Man", "Temporada 1", "MAPPA", 2022, 12),
 ]
-PERSONAJES = {  # título → [(nombre, rol)]
+PERSONAJES = {  # título → [(nombre, rol)]; se registran en la primera temporada de cada serie
     "Death Note": [("Light Yagami", "Principal"), ("L", "Principal"), ("Ryuk", "Secundario"), ("Misa Amane", "Secundario")],
     "Attack on Titan": [("Eren Yeager", "Principal"), ("Mikasa Ackerman", "Principal"), ("Armin Arlert", "Principal"), ("Levi", "Secundario")],
     "Jujutsu Kaisen": [("Yuji Itadori", "Principal"), ("Megumi Fushiguro", "Principal"), ("Nobara Kugisaki", "Principal"), ("Satoru Gojo", "Secundario")],
     "Chainsaw Man": [("Denji", "Principal"), ("Power", "Principal"), ("Aki Hayakawa", "Principal"), ("Makima", "Secundario")],
 }
-LISTA_DEMO = [  # (título, temporada, vistos, calificación, reseña)
-    ("Death Note", 1, 37, 10, "Un duelo de inteligencia de principio a fin."),
-    ("Chainsaw Man", 1, 8, 9, None),
-    ("Jujutsu Kaisen", 1, 24, 9, "Peleas muy bien animadas."),
-    ("Jujutsu Kaisen", 2, 0, None, None),
-    ("Attack on Titan", 1, 13, 8, None),
+# Lista del perfil de demostración: solo avance (sin calificaciones ni reseñas, que son opinión de cada usuario).
+LISTA_DEMO = [  # (título, temporada, episodios vistos)
+    ("Death Note", "Temporada única", 37),
+    ("Chainsaw Man", "Temporada 1", 8),
+    ("Jujutsu Kaisen", "Temporada 1", 24),
+    ("Jujutsu Kaisen", "Temporada 2", 23),
+    ("Jujutsu Kaisen", "Temporada 3 · The Culling Game, parte 1", 0),
+    ("Attack on Titan", "Temporada 1", 13),
 ]
 
 
@@ -92,14 +102,17 @@ def cargar_ejemplo(conn: sqlite3.Connection) -> None:
     ids = {}
     for titulo, temporada, estudio, anio, episodios in SERIES:
         ids[(titulo, temporada)] = reglas.crear_serie(conn, titulo, temporada, estudio, anio, episodios)
+    primera = {}
+    for (titulo, temporada), sid in ids.items():
+        primera.setdefault(titulo, sid)
     for titulo, personajes in PERSONAJES.items():
         for nombre, rol in personajes:
-            reglas.crear_personaje(conn, ids[(titulo, 1)], nombre, rol)
+            reglas.crear_personaje(conn, primera[titulo], nombre, rol)
     perfil = reglas.crear_perfil(conn, "Demo")
     reglas.crear_perfil(conn, "Invitado")
-    for titulo, temporada, vistos, calif, resena in LISTA_DEMO:
+    for titulo, temporada, vistos in LISTA_DEMO:
         sid = reglas.agregar_a_lista(conn, perfil, ids[(titulo, temporada)])
-        reglas.actualizar_seguimiento(conn, sid, vistos, calif, resena)
+        reglas.actualizar_seguimiento(conn, sid, vistos)
 
 
 def init_app(app: Flask) -> None:

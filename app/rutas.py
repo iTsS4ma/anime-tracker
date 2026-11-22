@@ -12,10 +12,7 @@ def _intentar(accion, exito: str | None) -> bool:
     """Ejecuta una operación y muestra el resultado; devuelve True si salió bien."""
     try:
         resultado = accion()
-    except ReglaNegocioError as e:
-        flash(f"{e.regla} · {e.mensaje}", "regla")
-        return False
-    except DatoInvalido as e:
+    except (ReglaNegocioError, DatoInvalido) as e:
         flash(str(e), "error")
         return False
     if exito:
@@ -40,7 +37,7 @@ def inicio():
     pid = request.args.get("perfil", type=int) or perfiles[0]["id"]
     perfil = next((p for p in perfiles if p["id"] == pid), None) or abort(404)
     disponibles = conn.execute(
-        "SELECT * FROM series WHERE id NOT IN (SELECT serie_id FROM seguimiento WHERE perfil_id = ?) ORDER BY titulo, temporada",
+        "SELECT * FROM series WHERE id NOT IN (SELECT serie_id FROM seguimiento WHERE perfil_id = ?) ORDER BY titulo, anio, id",
         (pid,),
     ).fetchall()
     return render_template(
@@ -112,7 +109,7 @@ def series():
     filas = conn.execute(
         """SELECT se.*, (SELECT COUNT(*) FROM personajes p WHERE p.serie_id = se.id) AS personajes,
                   (SELECT COUNT(*) FROM seguimiento s WHERE s.serie_id = se.id) AS seguidores
-           FROM series se ORDER BY titulo, temporada"""
+           FROM series se ORDER BY titulo, anio, id"""
     ).fetchall()
     return render_template("series.html", series=filas, form=request.form)
 

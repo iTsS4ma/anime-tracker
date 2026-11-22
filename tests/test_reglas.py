@@ -9,8 +9,8 @@ from app.reglas import ReglaNegocioError
 def datos(conn):
     """Un perfil, dos series (Chainsaw Man y Death Note) y Chainsaw Man en la lista."""
     perfil = reglas.crear_perfil(conn, "Emi")
-    csm = reglas.crear_serie(conn, "Chainsaw Man", 1, "MAPPA", 2022, 12)
-    dn = reglas.crear_serie(conn, "Death Note", 1, "Madhouse", 2006, 37)
+    csm = reglas.crear_serie(conn, "Chainsaw Man", "Temporada 1", "MAPPA", 2022, 12)
+    dn = reglas.crear_serie(conn, "Death Note", "Temporada única", "Madhouse", 2006, 37)
     sid = reglas.agregar_a_lista(conn, perfil, csm)
     return {"perfil": perfil, "csm": csm, "dn": dn, "sid": sid}
 
@@ -95,11 +95,11 @@ def test_rn006_no_se_elimina_serie_en_una_lista(conn, datos):
 def test_rn007_total_no_baja_de_lo_visto(conn, datos):
     reglas.actualizar_seguimiento(conn, datos["sid"], 10)
     with pytest.raises(ReglaNegocioError) as e:
-        reglas.editar_serie(conn, datos["csm"], "Chainsaw Man", 1, "MAPPA", 2022, 9)
+        reglas.editar_serie(conn, datos["csm"], "Chainsaw Man", "Temporada 1", "MAPPA", 2022, 9)
     assert e.value.regla == "RN-007"
 
 
 def test_rn007_al_cambiar_el_total_se_recalcula_el_estado(conn, datos):
     reglas.actualizar_seguimiento(conn, datos["sid"], 10)
-    reglas.editar_serie(conn, datos["csm"], "Chainsaw Man", 1, "MAPPA", 2022, 10)
+    reglas.editar_serie(conn, datos["csm"], "Chainsaw Man", "Temporada 1", "MAPPA", 2022, 10)
     assert _fila(conn, datos["sid"])["estado"] == "Completada"

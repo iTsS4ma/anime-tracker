@@ -47,7 +47,7 @@ Anime Tracker permite que cada perfil lleve su lista de temporadas: cuántos epi
 
 ## 5. Reglas de negocio
 
-Programadas en `app/reglas.py`. Cada una tiene pruebas en `tests/test_reglas.py` con su clave en el nombre de la prueba (por ejemplo, `test_rn004_...`).
+Definidas en `reglas_negocio.toml` (clave, título, descripción, severidad, historia y criterio de aceptación) y programadas en `app/reglas.py`. RN-002 también indica el patrón que debe aparecer en el código. Cada una tiene pruebas en `tests/test_reglas.py` con su clave en el nombre de la prueba (por ejemplo, `test_rn004_...`).
 
 | Clave | Regla | Severidad | Historia | Criterio de aceptación |
 |---|---|---|---|---|

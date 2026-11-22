@@ -1,0 +1,65 @@
+# reglas_negocio.toml · reglas de negocio de Anime Tracker
+# Cada regla tiene una clave RN-###. Sus pruebas están en tests/test_reglas.py y llevan la clave en el
+# nombre (test_rn001_..., test_rn002_..., etc.). Algunas reglas también se revisan con un patrón en el código.
+
+[proyecto]
+nombre  = "Anime Tracker"
+version = "2.0"
+
+[[regla]]
+id          = "RN-001"
+titulo      = "Episodios vistos dentro del rango"
+descripcion = "Los episodios vistos de una temporada van de 0 a su total de episodios; el botón +1 no pasa del total."
+severidad   = "alta"
+historia    = "HU-03"
+criterio    = "Dada Chainsaw Man temporada 1 con 12 episodios, cuando se capturan 13 vistos, entonces se rechaza"
+
+[[regla]]
+id          = "RN-002"
+titulo      = "El estado se calcula, no se captura"
+descripcion = "Pendiente con 0 episodios, Viendo con al menos 1, Completada al llegar al total. Ninguna pantalla deja elegir el estado."
+severidad   = "media"
+rutas       = ["app/reglas.py"]
+obligatorio = 'estado = estado_de\(vistos, fila\["episodios"\]\)'
+historia    = "HU-03"
+criterio    = "Dada una temporada de 12 episodios, cuando se marcan 12 vistos, entonces el estado es Completada"
+
+[[regla]]
+id          = "RN-003"
+titulo      = "Calificar y reseñar con avance"
+descripcion = "La calificación va de 1 a 10 y requiere haber visto al menos un episodio; la reseña solo se escribe con la temporada completada."
+severidad   = "media"
+historia    = "HU-04"
+criterio    = "Dada una temporada en Pendiente, cuando se califica con 8, entonces se rechaza"
+
+[[regla]]
+id          = "RN-004"
+titulo      = "Una temporada por lista"
+descripcion = "Una temporada aparece una sola vez en la lista de cada perfil; otro perfil sí puede agregarla."
+severidad   = "media"
+historia    = "HU-02"
+criterio    = "Dada Death Note en la lista del perfil Demo, cuando se agrega otra vez, entonces se rechaza"
+
+[[regla]]
+id          = "RN-005"
+titulo      = "Personaje único por temporada"
+descripcion = "El nombre de un personaje no se repite dentro de la misma temporada del catálogo (sin distinguir mayúsculas)."
+severidad   = "baja"
+historia    = "HU-05"
+criterio    = "Dado Denji en Chainsaw Man, cuando se registra «denji» en la misma temporada, entonces se rechaza"
+
+[[regla]]
+id          = "RN-006"
+titulo      = "No se elimina una temporada que alguien sigue"
+descripcion = "Una temporada que está en la lista de algún perfil no se puede eliminar del catálogo."
+severidad   = "alta"
+historia    = "HU-01"
+criterio    = "Dada Death Note en una lista, cuando se intenta eliminar, entonces se rechaza"
+
+[[regla]]
+id          = "RN-007"
+titulo      = "El total de episodios no baja de lo visto"
+descripcion = "Al editar una temporada, su total de episodios no puede quedar por debajo de los vistos por cualquier perfil; al cambiar el total se recalcula el estado de todos."
+severidad   = "media"
+historia    = "HU-01"
+criterio    = "Dados 10 episodios vistos, cuando el total se cambia a 9, entonces se rechaza"

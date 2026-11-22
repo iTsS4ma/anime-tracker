@@ -39,7 +39,7 @@ No se incluyen películas (por ejemplo, *Chainsaw Man – The Movie: Reze Arc*, 
 
 ## Reglas de negocio
 
-Están programadas en [`app/reglas.py`](app/reglas.py) y documentadas en la [documentación](docs/Documentacion.md); cada una tiene pruebas en [`tests/test_reglas.py`](tests/test_reglas.py) con su clave en el nombre (por ejemplo, `test_rn002_...`). Cuando una operación no las cumple, la pantalla avisa y no guarda nada.
+Están definidas en [`reglas_negocio.toml`](reglas_negocio.toml), programadas en [`app/reglas.py`](app/reglas.py) y documentadas en la [documentación](docs/Documentacion.md); cada una tiene pruebas en [`tests/test_reglas.py`](tests/test_reglas.py) con su clave en el nombre (por ejemplo, `test_rn002_...`). Cuando una operación no las cumple, la pantalla avisa y no guarda nada.
 
 | Clave | Regla |
 |---|---|
@@ -104,6 +104,7 @@ tests/
   test_reglas.py   pruebas de cada regla RN-###
   test_web.py      pruebas de las pantallas
 docs/              documentación y capturas
+reglas_negocio.toml   reglas de negocio (clave, descripción, severidad, historia y criterio)
 render.yaml · Procfile
 ```
 
